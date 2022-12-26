@@ -1,4 +1,4 @@
-package skiplist1
+package skiplist
 
 import (
 	"math"
