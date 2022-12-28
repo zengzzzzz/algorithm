@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	defaultMaxlevel    int     = 10
-	defaultProbability float64 = 1 / math.E
+	DefaultMaxlevel    int     = 10
+	DefaultProbability float64 = 1 / math.E
 )
 
 type elementNode struct {
@@ -31,17 +31,78 @@ func (e *Element) Value() interface{} {
 }
 
 type SkipList struct {
-	elementNone
-	maxLevel    int
-	length      int
-	randSource  rand.Source
-	probability float64
-	probTabale  []float64
-    mutex sync.RWMutex
-    prevNodeCache []*elementNode
+	elementNode
+	maxLevel      int
+	length        int
+	randSource    rand.Source
+	probability   float64
+	probTabale    []float64
+	mutex         sync.RWMutex
+	prevNodeCache []*elementNode
 }
 
-func NewSkipList() *SkipList{
-    return NewWithMaxLevel(defaultMaxlevel)
+func NewSkipList() *SkipList {
+	return NewWithMaxLevel(DefaultMaxlevel)
 }
 
+func ProbabilityTable(probability float64, maxlevel int) (table []float64) {
+	for i := 1; i <= maxlevel; i++ {
+		prob := math.Pow(probability, float64(i-1))
+		table = append(table, prob)
+	}
+	return table
+}
+
+func NewWithMaxLevel(maxLevel int) *SkipList {
+	if maxLevel < 1 || maxLevel > DefaultMaxlevel {
+		panic("invalid maxlevel")
+	}
+
+	return &SkipList{
+		elementNode:   elementNode{next: make([]*Element, maxLevel)},
+		prevNodeCache: make([]*elementNode, maxLevel),
+		maxLevel:      maxLevel,
+		randSource:    rand.New(rand.NewSource((time.Now().UnixNano()))),
+		probability:   DefaultProbability,
+		probTabale:    ProbabilityTable(DefaultProbability, maxLevel),
+	}
+}
+
+func (list *SkipList) randLevel() (level int) {
+	r := float64(list.randSource.Int63()) / (1 << 63)
+	level = 1
+	for level < list.maxLevel && r < list.probTabale[level] {
+		level++
+	}
+	return level
+}
+
+func (list *SkipList) SetProbability(newProbability float64) {
+	list.probability = newProbability
+	list.probTabale = ProbabilityTable(newProbability, list.maxLevel)
+}
+
+func (list *SkipList) Set(key float64, value interface{}) *Element {
+	list.mutex.Lock()
+	defer list.mutex.Unlock()
+
+	var element *Element
+	prevs := list.getPrevElementNodes(key)
+	if element = prevs[0].next[0]; element != nil && key == element.key {
+		element.value = value
+		return element
+	}
+
+	element = &Element{
+		elementNode: elementNode{next: make([]*Element, list.randLevel())},
+		key:  key,
+		value: value,
+	}
+	list.length++
+
+	for i := range element.next{
+		element.next[i] = prevs[i].next[i]
+		prevs[i].next[i] = element
+	}
+	return element
+}
