@@ -1,3 +1,9 @@
+/*
+ * @Author: zengzh
+ * @Date: 2022-12-28 15:38:33
+ * @Last Modified by:   zengzh
+ * @Last Modified time: 2022-12-28 15:38:33
+ */
 package skiplist
 
 import (
@@ -95,14 +101,29 @@ func (list *SkipList) Set(key float64, value interface{}) *Element {
 
 	element = &Element{
 		elementNode: elementNode{next: make([]*Element, list.randLevel())},
-		key:  key,
-		value: value,
+		key:         key,
+		value:       value,
 	}
 	list.length++
 
-	for i := range element.next{
+	for i := range element.next {
 		element.next[i] = prevs[i].next[i]
 		prevs[i].next[i] = element
 	}
 	return element
+}
+
+func (list *SkipList) getPrevElementNodes(key float64) []*elementNode {
+	var prev *elementNode = &list.elementNode
+	var next *Element
+	prevs := list.prevNodeCache
+	for i := list.maxLevel - 1; i >= 0; i-- {
+		next = prev.next[i]
+		for next != nil && key > next.key {
+			prev = &next.elementNode
+			next = prev.next[i]
+		}
+		prevs[i] = prev
+	}
+	return prevs
 }
