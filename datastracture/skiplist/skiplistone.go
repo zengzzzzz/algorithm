@@ -2,8 +2,10 @@
  * @Author: zengzh
  * @Date: 2022-12-28 15:38:33
  * @Last Modified by: zengzh
- * @Last Modified time: 2022-12-29 13:41:29
+ * @Last Modified time: 2022-12-29 14:10:11
  */
+
+//  https://studygolang.com/articles/22491
 package skiplist
 
 import (
