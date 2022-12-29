@@ -113,6 +113,41 @@ func (list *SkipList) Set(key float64, value interface{}) *Element {
 	return element
 }
 
+func (list *SkipList) Get(key float64) *Element {
+	list.mutex.Lock()
+	defer list.mutex.Unlock()
+
+	var prev *elementNode = &list.elementNode
+	var next *Element
+	for i := list.maxLevel - 1; i >= 0; i-- {
+		next = prev.next[i]
+		for next != nil && key > next.key {
+			prev = &next.elementNode
+			next = next.next[i]
+		}
+	}
+	if next != nil && next.key == key {
+		return next
+	}
+	return nil
+}
+
+func (list *SkipList) Remove(key float64) *Element {
+	list.mutex.Lock()
+	defer list.mutex.Unlock()
+
+	var element *Element
+	prevs := list.getPrevElementNodes(key)
+	if element = prevs[0].next[0]; element != nil && key == element.key {
+		for k, v := range element.next {
+			prevs[k].next[k] = v
+		}
+		list.length--
+		return element
+	}
+	return nil
+}
+
 func (list *SkipList) getPrevElementNodes(key float64) []*elementNode {
 	var prev *elementNode = &list.elementNode
 	var next *Element
