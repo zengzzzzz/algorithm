@@ -2,7 +2,7 @@
  * @Author: zengzh
  * @Date: 2023-01-02 14:19:39
  * @Last Modified by: zengzh
- * @Last Modified time: 2023-01-02 14:27:26
+ * @Last Modified time: 2023-01-02 15:25:50
  */
 package bptree
 
@@ -74,3 +74,46 @@ func NewWithFreeList(degree int, f *FreeList) *Btree
     }
 }
 
+type items []Item
+
+func (s *items) insertAt(index int, item Item){
+    *s = append(*s, nil)
+    if index < len(*s){
+        copy((*s)[index+1:], (*s)[index:])
+    }
+    (*s)[index] = item
+}
+
+func (s *items) removeAt(index int){
+    item := (*s)[index]
+    copy((*s)[index:], (*s)[index+1:])
+    (*s)[len(*s)-1] = nil
+    *s = (*s)[:len(*s) -1 ]
+    return item
+}
+
+func (s *items) pop() (out item){
+    index := len(*s) - 1
+    out := (*s)[index]
+    (*s)[index] = nil  
+    *s = (*s)[:index]
+    return
+}
+
+func (s *items) truncate(index int){
+    var toClear items
+    *s, toClear = (*s)[:index] , (*s)[index:]
+    for len(toClear) > 0{
+        toClear = toClear[copy(toClear, nilItems):]
+    }
+}
+
+func (s items) find(item Item) (index int, found bool) {
+    i := sort.Sort(len(s), func(i int) bool{
+        return item.less(s[i])
+    })
+    if i > 0 && !s[i-1].Less(item){
+        return i-1, true
+    }
+    return i, false
+}
