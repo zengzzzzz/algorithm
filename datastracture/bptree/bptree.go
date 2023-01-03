@@ -153,4 +153,10 @@ func (s *children) truncate(index int){
     }
 }
 
+type node struct {
+    items items
+    children children
+    cow *copyOnWriteContext
+}
+
 
