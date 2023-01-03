@@ -117,3 +117,40 @@ func (s items) find(item Item) (index int, found bool) {
     }
     return i, false
 }
+
+type children []*node
+
+
+func (s *children) insertAt(index int ){
+    *s = append(*s, nil)
+    if index < len(*s){
+        copy((*s)[index+1:], (*s)[index:])
+    }
+    (*s)[index] = n
+}
+
+func (s *children) removeAt(index int) (out *node){
+    n := (*s)[index]
+    copy((*s)[index:], (*s)[index+1:])
+    (*s)[len(*s)-1] = nil
+    *s = (*s)[:len(*s)-1]
+    return n
+}
+
+func (s *children) pop() (out *node){
+    index := len(*s) - 1
+    out = (*s)[index]
+    (*s)[index] = nil
+    *s = (*s)[:index]
+    return
+}
+
+func (s *children) truncate(index int){
+    var toClear children
+    *s, toClear = (*s)[:index], (*s)[index:]
+    for len(toClear) > 0{
+        toClear = toClear[copy(toClear, nilChildren):]
+    }
+}
+
+
