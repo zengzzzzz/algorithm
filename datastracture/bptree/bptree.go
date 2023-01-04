@@ -159,4 +159,29 @@ type node struct {
     cow *copyOnWriteContext
 }
 
+func (n *node) mutableFor(cow *copyOnWriteContext) *node{
+    if n.cow == cow{
+        return n
+    }
+    out := cow.newNode()
+    if cap(out.items) >= len(n.items){
+        out.items = out.items[:len(n.items)]
+    } else{
+        out.items = make(items, len(n.items), cap(n.items))
+    }
+    copy(out.items, n.items)
+    if cap(out.children) >= len(n.children){
+        out.children = out.children[:len(n.children)]
+    } else{
+        out.children = make(children, len(n.children), cap(n.children))
+    }
+    copy(out.children, n.children)
+    return out
+}
+
+func (n *node) mutableChild(i int) *node {
+    c := n.children[i].mutableFor(n.cow)
+    n.children[i] = c
+    return c
+}
 
