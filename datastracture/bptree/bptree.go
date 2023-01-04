@@ -207,3 +207,28 @@ func (n *node) maybeSplitChild(i, maxItems int) bool{
     n.children.insertAt(i+1, second)
 }
 
+func (n *node) insert(item Item, maxItems int) Item{
+    i, found := n.items.find(item)
+    if found {
+        out := n.items[i]
+        n.items[i] = item
+        return out
+    }
+    if len(n.children) == 0{
+        n.items.insertAt(i, item)
+        return nil
+    }
+    if n.maybeSplitChild(i, maxItems){
+        inTree := n.items[i]
+        switch {
+            case item.Less(inTree):
+            case inTree.Less(item):
+                i ++
+            default:
+                out := n.items[i]
+                n.items[i] = item
+                return out
+        }
+    }
+    return n.mutableChild(i).insert(item, maxItems)
+}
