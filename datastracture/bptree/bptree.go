@@ -185,3 +185,25 @@ func (n *node) mutableChild(i int) *node {
     return c
 }
 
+func (n *node) split(i int) (Item, *node){
+    item := n.items[i]
+    next := n.cow.newNode()
+    next.items = append(next.items, n.items[i+1]...)
+    n.items.truncate(i)
+    if len(n.children) >0{
+        next.children = append(next.children, n.children[i+1]...)
+        n.children.truncate(i+1)
+    }
+    return item, next
+}
+
+func (n *node) maybeSplitChild(i, maxItems int) bool{
+    if len(n.children[i].items < maxItems) {
+        return false
+    }
+    first := n.mutableChild(i)
+    item, second := first.split(maxItems/2)
+    n.items.insertAt(i, item)
+    n.children.insertAt(i+1, second)
+}
+
