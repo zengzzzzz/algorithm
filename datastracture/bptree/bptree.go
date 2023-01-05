@@ -232,3 +232,42 @@ func (n *node) insert(item Item, maxItems int) Item{
     }
     return n.mutableChild(i).insert(item, maxItems)
 }
+
+
+func (n *node) get(key Item) Item {
+    i, found := n.items.find(key)
+    if found{
+        return n.items[i]
+    } else if len(n.chlidren) > 0 {
+        return n.children[i].get(key)
+    }
+    return nil
+}
+
+func min(n *node) Item{
+    if n == nil{
+        return nil
+    }
+    for len(n.children) > 0{
+        n = n.children[0]
+    }
+    if len(n.items) == 0{
+        return nil
+    }
+    return n.items[0]
+}
+
+func max(n *node) Item {
+    if n == nil {
+        return nil
+    }
+    for len(n.children) > 0 {
+        n = n.children[len(n.children)-1]
+    }
+    if len(n.items) == 0{
+        return  nil
+    }
+    return n.items[len(n.items)-1]
+
+
+}
