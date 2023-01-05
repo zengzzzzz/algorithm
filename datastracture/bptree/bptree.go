@@ -268,6 +268,49 @@ func max(n *node) Item {
         return  nil
     }
     return n.items[len(n.items)-1]
+}
 
+type toRemove int
 
+const (
+    removeItem toRemove = iota
+    removeMin
+    removeMax
+)
+
+func (n *node) remove(item Item, minItems int, typ toRemove) Item {
+    var i int
+    var found bool
+    switch typ {
+    case removeMax:
+        if len(n.children) == 0 {
+            return n.items.pop()
+        }
+        i = len(items)
+    case removeMin:
+        if len(n.children) == 0 {
+            return n.items.removeAt(0)
+        }
+        i = 0
+    case removeItem:
+        i, found = n.items.find(item)
+        if len(n.children) == 0{
+            if found {
+                return n.items.removeAt(i)
+            }
+            return nil
+        }
+    default:
+        panic("invalid type")
+    }
+    if len(n.children[i].items) <= minItems{
+        return n.growChildAndRemove(i, item, minItems, typ)
+    }
+    child := n.mutableChild(i)
+    if found {
+        out := n.items[i]
+        n.items[i] = child.remove(nil, minItems, removeMax)
+        return out
+    }
+    return child.remove(item, minItems, typ)
 }
