@@ -315,4 +315,36 @@ func (n *node) remove(item Item, minItems int, typ toRemove) Item {
     return child.remove(item, minItems, typ)
 }
 
-
+func (n *node) growChildAndRemove(i int, item Item, minItems int, typ toRemove) Item {
+    if i >  0 && len(n.children[i-1].items) > minItems {
+        child := n.mutableChild(i)
+        stealFrom := n.mutableChild(i-1)
+        stolenItem := stealFrom.items.pop()
+        child.items.insertAt(0, n.items[i-1])
+        n.items[i-1] = stolenItem
+        if len(stealFrom.children) > 0 {
+            child.children.insertAt(0, stealFrom.children.pop())
+    }
+    }else if i < len(n.items) && len(n.children[i+1].items) > minItems{
+        child := n.mutableChild(i)
+        stealFrom := n.mutableChild(i+1)
+        stolenItem := stealFrom.items.removeAt(0)
+        child.items = append(child.items, n.items[i])
+        n.items[i] = stolenItem
+        if len(stealFrom.children) > 0 {
+            child.children = append(child.children, stealFrom.children.removeAt(0))
+        }
+    }else{
+        if i == len(n.items){
+            i--
+        }  
+        child :=  n.mutableChild(i)
+        mergeItem := n.items.removeaAt(i)
+        mergeChild := n.children.removeAt(i+1)
+        child.items = append(child.items, mergeItem)
+        child.items = append(child.items, mergeChild.items...)
+        child.children = append(child.children, mergeChild.children...)
+        n.cow.freeNode(mergeChild)
+    }
+    return n.remove(item, minItems, typ)
+}

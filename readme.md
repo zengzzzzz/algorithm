@@ -9,3 +9,5 @@ Implementation of data structures by go
 4 reverse binary iteration
 
 5 raft
+
+6 radix tree
