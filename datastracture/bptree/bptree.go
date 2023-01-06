@@ -26,7 +26,7 @@ var (
 type FreeList struct {
 	mu       sync.Mutex
 	freelist []*node
-}
+}f
 
 func NewFreeList(size int) *FreeList {
 	return &FreeList{
@@ -314,3 +314,5 @@ func (n *node) remove(item Item, minItems int, typ toRemove) Item {
     }
     return child.remove(item, minItems, typ)
 }
+
+
