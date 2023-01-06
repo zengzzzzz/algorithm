@@ -1,8 +1,8 @@
 /*
  * @Author: zengzh
  * @Date: 2023-01-06 16:30:53
- * @Last Modified by:   zengzh
- * @Last Modified time: 2023-01-06 16:30:53
+ * @Last Modified by: zengzh
+ * @Last Modified time: 2023-01-06 19:01:43
  */
 package bptree
 
@@ -386,6 +386,19 @@ func (n *node) iterate(dir direction, start, stop Item, includeStart bool, hit b
 			}
 		}
 	case descend:
-
+		if start != nil {
+			index, found = n.items.find(start)
+			if !found {
+				index = index - 1
+			}
+		} else {
+			index = len(n.items) - 1
+		}
+        for i := index; i >= 0; i-- {
+            if start != nil{
+                index, found = n.items.find(start)
+                if !
+            }
+        }
 	}
 }
