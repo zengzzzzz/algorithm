@@ -1,8 +1,8 @@
 /*
  * @Author: zengzh
- * @Date: 2023-01-02 14:19:39
- * @Last Modified by: zengzh
- * @Last Modified time: 2023-01-02 15:25:50
+ * @Date: 2023-01-06 16:30:53
+ * @Last Modified by:   zengzh
+ * @Last Modified time: 2023-01-06 16:30:53
  */
 package bptree
 
@@ -372,7 +372,20 @@ func (n *node) iterate(dir direction, start, stop Item, includeStart bool, hit b
 					continue
 				}
 				hit = true
+				if stop != nil && !n.items[i].Less(stop) {
+					return hit, false
+				}
+				if !iter(n.items[i]) {
+					return hit, false
+				}
 			}
 		}
+		if len(n.children) > 0 {
+			if hit, ok = n.children[len(n.children)-1].iterate(dir, start, stop, includeStart, hit, iter); !ok {
+				return hit, false
+			}
+		}
+	case descend:
+
 	}
 }
