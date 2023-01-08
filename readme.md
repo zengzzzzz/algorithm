@@ -11,3 +11,5 @@ Implementation of data structures by go
 5 raft
 
 6 radix tree
+
+7 quorum
