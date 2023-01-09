@@ -421,3 +421,31 @@ func (n *node) iterate(dir direction, start, stop Item, includeStart bool, hit b
 	}
 	return hit, true
 }
+
+func (n *node) print(w io.Writer, level int){
+	fmt.Fprint(w, "%sNODE:%v\n", string.Repeat(" ",level), n.items)
+	for _, c := range n.children {
+		c.print(w, level+1)
+	}
+}
+
+type BTree struct{
+	degree int
+	length int
+	root *node
+	cow  *copyOnWriteContext
+}
+
+type copyOnWriteContext struct{
+	freelist *FreeList
+}
+
+func (t *BTree) Clone (t2 *BTree){
+	cow1, cow2 := *t.cow, *t.cow
+	out := *t
+	t.cow = &cow1
+	out.cow = &cow2
+	return &out
+}
+
+
