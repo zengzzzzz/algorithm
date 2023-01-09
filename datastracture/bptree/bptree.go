@@ -440,6 +440,7 @@ type copyOnWriteContext struct{
 	freelist *FreeList
 }
 
+// copy on write
 func (t *BTree) Clone (t2 *BTree){
 	cow1, cow2 := *t.cow, *t.cow
 	out := *t
