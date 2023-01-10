@@ -7,6 +7,8 @@
 package bptree
 
 import (
+	"fmt"
+	"io"
 	"sort"
 	"sync"
 )
@@ -422,26 +424,26 @@ func (n *node) iterate(dir direction, start, stop Item, includeStart bool, hit b
 	return hit, true
 }
 
-func (n *node) print(w io.Writer, level int){
-	fmt.Fprint(w, "%sNODE:%v\n", string.Repeat(" ",level), n.items)
+func (n *node) print(w io.Writer, level int) {
+	fmt.Fprint(w, "%sNODE:%v\n", string.Repeat(" ", level), n.items)
 	for _, c := range n.children {
 		c.print(w, level+1)
 	}
 }
 
-type BTree struct{
+type BTree struct {
 	degree int
 	length int
-	root *node
-	cow  *copyOnWriteContext
+	root   *node
+	cow    *copyOnWriteContext
 }
 
-type copyOnWriteContext struct{
+type copyOnWriteContext struct {
 	freelist *FreeList
 }
 
 // copy on write
-func (t *BTree) Clone (t2 *BTree){
+func (t *BTree) Clone(t2 *BTree) {
 	cow1, cow2 := *t.cow, *t.cow
 	out := *t
 	t.cow = &cow1
@@ -473,13 +475,13 @@ const (
 )
 
 func (c *copyOnWriteContext) freeNode(n *node) freeType {
-	if n.cow == c{
+	if n.cow == c {
 		n.items.truncate(0)
 		n.children.truncate(0)
 		n.cow = nil
 		if c.freelist.freeNode(n) {
 			return ftStored
-		} else  {
+		} else {
 			return ftFreelistFull
 		}
 	} else {
@@ -487,4 +489,28 @@ func (c *copyOnWriteContext) freeNode(n *node) freeType {
 	}
 }
 
-
+func (t *BTree) ReplaceOrInsert(item Item) Item {
+	if item == nil {
+		panic("nil item being added to BTree")
+	}
+	if t.root == nil {
+		t.root = t.cow.newNode()
+		t.root.items = append(t.root.items, item)
+		t.length++
+		return nil
+	} else {
+		t.root = t.root.mutableFor(t.cow)
+		if len(t.root.items) >= t.maxItems() {
+			item2, second := t.root.split(t.maxItems() / 2)
+			oldroot := t.root
+			t.root = t.cow.newNode()
+			t.root.items = append(t.root.items, item2)
+			t.root.children = append(t.root.children, oldroot, second)
+		}
+	}
+	out := t.root.insert(item, t.maxItems())
+	if out == nil {
+		t.length++
+	}
+	return out
+}
