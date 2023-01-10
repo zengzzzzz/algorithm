@@ -449,4 +449,42 @@ func (t *BTree) Clone (t2 *BTree){
 	return &out
 }
 
+func (t *BTree) maxItems() int {
+	return t.degree*2 - 1
+}
+
+func (t *BTree) minItems() int {
+	return t.degree - 1
+}
+
+func (c *copyOnWriteContext) newNode() (n *node) {
+	n = c.freelist.newNode()
+	n.cow = c
+	return
+}
+
+type freeType int
+
+// my
+const (
+	ftFreelistFull freeType = iota
+	ftStored
+	ftNotOwned
+)
+
+func (c *copyOnWriteContext) freeNode(n *node) freeType {
+	if n.cow == c{
+		n.items.truncate(0)
+		n.children.truncate(0)
+		n.cow = nil
+		if c.freelist.freeNode(n) {
+			return ftStored
+		} else  {
+			return ftFreelistFull
+		}
+	} else {
+		return ftNotOwned
+	}
+}
+
 
