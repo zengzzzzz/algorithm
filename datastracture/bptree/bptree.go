@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 	"sync"
 )
 
@@ -66,7 +67,7 @@ func New(degree int) *BTree {
 	return NewWithFreeList(degree, NewFreeList(DefaultFreeListSize))
 }
 
-func NewWithFreeList(degree int, f *FreeList) *Btree {
+func NewWithFreeList(degree int, f *FreeList) *BTree {
 	if degree <= 1 {
 		panic("invalid degree")
 	}
@@ -86,7 +87,7 @@ func (s *items) insertAt(index int, item Item) {
 	(*s)[index] = item
 }
 
-func (s *items) removeAt(index int) {
+func (s *items) removeAt(index int) Item {
 	item := (*s)[index]
 	copy((*s)[index:], (*s)[index+1:])
 	(*s)[len(*s)-1] = nil
@@ -94,9 +95,9 @@ func (s *items) removeAt(index int) {
 	return item
 }
 
-func (s *items) pop() (out item) {
+func (s *items) pop() (out Item) {
 	index := len(*s) - 1
-	out := (*s)[index]
+	out = (*s)[index]
 	(*s)[index] = nil
 	*s = (*s)[:index]
 	return
@@ -111,8 +112,8 @@ func (s *items) truncate(index int) {
 }
 
 func (s items) find(item Item) (index int, found bool) {
-	i := sort.Sort(len(s), func(i int) bool {
-		return item.less(s[i])
+	i := sort.Search(len(s), func(i int) bool {
+		return item.Less(s[i])
 	})
 	if i > 0 && !s[i-1].Less(item) {
 		return i - 1, true
@@ -122,7 +123,7 @@ func (s items) find(item Item) (index int, found bool) {
 
 type children []*node
 
-func (s *children) insertAt(index int) {
+func (s *children) insertAt(index int, n *node) {
 	*s = append(*s, nil)
 	if index < len(*s) {
 		copy((*s)[index+1:], (*s)[index:])
@@ -189,23 +190,24 @@ func (n *node) mutableChild(i int) *node {
 func (n *node) split(i int) (Item, *node) {
 	item := n.items[i]
 	next := n.cow.newNode()
-	next.items = append(next.items, n.items[i+1]...)
+	next.items = append(next.items, n.items[i+1:]...)
 	n.items.truncate(i)
 	if len(n.children) > 0 {
-		next.children = append(next.children, n.children[i+1]...)
+		next.children = append(next.children, n.children[i+1:]...)
 		n.children.truncate(i + 1)
 	}
 	return item, next
 }
 
 func (n *node) maybeSplitChild(i, maxItems int) bool {
-	if len(n.children[i].items < maxItems) {
+	if len(n.children[i].items) < maxItems {
 		return false
 	}
 	first := n.mutableChild(i)
 	item, second := first.split(maxItems / 2)
 	n.items.insertAt(i, item)
 	n.children.insertAt(i+1, second)
+	return true
 }
 
 func (n *node) insert(item Item, maxItems int) Item {
@@ -238,7 +240,7 @@ func (n *node) get(key Item) Item {
 	i, found := n.items.find(key)
 	if found {
 		return n.items[i]
-	} else if len(n.chlidren) > 0 {
+	} else if len(n.children) > 0 {
 		return n.children[i].get(key)
 	}
 	return nil
@@ -286,7 +288,7 @@ func (n *node) remove(item Item, minItems int, typ toRemove) Item {
 		if len(n.children) == 0 {
 			return n.items.pop()
 		}
-		i = len(items)
+		i = len(n.items)
 	case removeMin:
 		if len(n.children) == 0 {
 			return n.items.removeAt(0)
@@ -339,7 +341,7 @@ func (n *node) growChildAndRemove(i int, item Item, minItems int, typ toRemove) 
 			i--
 		}
 		child := n.mutableChild(i)
-		mergeItem := n.items.removeaAt(i)
+		mergeItem := n.items.removeAt(i)
 		mergeChild := n.children.removeAt(i + 1)
 		child.items = append(child.items, mergeItem)
 		child.items = append(child.items, mergeChild.items...)
@@ -425,7 +427,7 @@ func (n *node) iterate(dir direction, start, stop Item, includeStart bool, hit b
 }
 
 func (n *node) print(w io.Writer, level int) {
-	fmt.Fprint(w, "%sNODE:%v\n", string.Repeat(" ", level), n.items)
+	fmt.Fprint(w, "%sNODE:%v\n", strings.Repeat(" ", level), n.items)
 	for _, c := range n.children {
 		c.print(w, level+1)
 	}
@@ -443,7 +445,7 @@ type copyOnWriteContext struct {
 }
 
 // copy on write
-func (t *BTree) Clone(t2 *BTree) {
+func (t *BTree) Clone() (t2 *BTree) {
 	cow1, cow2 := *t.cow, *t.cow
 	out := *t
 	t.cow = &cow1
@@ -544,11 +546,11 @@ func (t *BTree) deleteItem(item Item, typ toRemove) Item {
 	return out
 }
 
-func (t *BTree) AscendRange(greaterOrEqual, lessThan Item, iter Iterator) {
+func (t *BTree) AscendRange(greaterOrEqual, lessThan Item, iterator ItemIterator) {
 	if t.root == nil {
 		return
 	}
-	t.root.iterate(ascend, greaterOrEqual, LessThan, true, false, iter)
+	t.root.iterate(ascend, greaterOrEqual, lessThan, true, false, iterator)
 }
 
 func (t *BTree) AscendLessThan(pivot Item, iterator ItemIterator) {
@@ -572,11 +574,11 @@ func (t *BTree) Ascend(iterator ItemIterator) {
 	t.root.iterate(ascend, nil, nil, false, false, iterator)
 }
 
-func (t *BTree) DescendRange(lessOrEqual, greaterThan Item, iter Iterator) {
+func (t *BTree) DescendRange(lessOrEqual, greaterThan Item, iterator ItemIterator) {
 	if t.root == nil {
 		return
 	}
-	t.root.iterate(descend, lessOrEqual, greaterThan, true, false, iter)
+	t.root.iterate(descend, lessOrEqual, greaterThan, true, false, iterator)
 }
 
 func (t *BTree) DescendLessOrEqual(pivot Item, iterator ItemIterator) {
@@ -611,7 +613,7 @@ func (t *BTree) Min() Item {
 	return min(t.root)
 }
 
-func (t *Btree) Max() Item {
+func (t *BTree) Max() Item {
 	return max(t.root)
 }
 
