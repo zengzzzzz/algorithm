@@ -543,3 +543,32 @@ func (t *BTree) deleteItem(item Item, typ toRemove) Item {
 	}
 	return out
 }
+
+func (t *BTree) AscendRange(greaterOrEqual, lessThan Item, iter Iterator) {
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(ascend, greaterOrEqual, LessThan, true, false, iter)
+}
+
+func (t *BTree) AscendLessThan(pivot Item, iterator ItemIterator) {
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(ascend, nil, pivot, false, false, iterator)
+}
+
+func (t *BTree) AscendGreaterOrEqual(pivot Item, iterator ItemIterator){
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(ascend, pivot, nil, true, false, iterator)
+}
+
+func (t *BTree) Ascend(iterator ItemIterator) {
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(ascend, nil, nil, false, false, iterator)
+}
+
