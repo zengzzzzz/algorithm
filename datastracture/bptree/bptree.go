@@ -533,7 +533,7 @@ func (t *BTree) deleteItem(item Item, typ toRemove) Item {
 	}
 	t.root = t.root.mutableFor(t.cow)
 	out := t.root.remove(item, t.minItems(), typ)
-	if len(t.root.items) == 0 && len(t.root.children) > 0{
+	if len(t.root.items) == 0 && len(t.root.children) > 0 {
 		oldroot := t.root
 		t.root = t.root.children[0]
 		t.cow.freeNode(oldroot)
@@ -558,7 +558,7 @@ func (t *BTree) AscendLessThan(pivot Item, iterator ItemIterator) {
 	t.root.iterate(ascend, nil, pivot, false, false, iterator)
 }
 
-func (t *BTree) AscendGreaterOrEqual(pivot Item, iterator ItemIterator){
+func (t *BTree) AscendGreaterOrEqual(pivot Item, iterator ItemIterator) {
 	if t.root == nil {
 		return
 	}
@@ -598,4 +598,45 @@ func (t *BTree) Descend(iterator ItemIterator) {
 		return
 	}
 	t.root.iterate(descend, nil, nil, false, false, iterator)
+}
+
+func (t *BTree) Get(key Item) Item {
+	if t.root == nil {
+		return nil
+	}
+	return t.root.get(key)
+}
+
+func (t *BTree) Min() Item {
+	return min(t.root)
+}
+
+func (t *Btree) Max() Item {
+	return max(t.root)
+}
+
+func (t *BTree) Len() int {
+	return t.length
+}
+
+func (t *BTree) Clear(addNodesForFreeList bool) {
+	if t.root != nil && addNodesForFreeList {
+		t.root.reset(t.cow)
+	}
+	t.root, t.length = nil, 0
+}
+
+func (n *node) reset(c *copyOnWriteContext) bool {
+	for _, child := range n.children {
+		if !child.reset(c) {
+			return false
+		}
+	}
+	return c.freeNode(n) != ftFreelistFull
+}
+
+type Int int
+
+func (a Int) Less(b Item) bool {
+	return a < b.(Int)
 }
