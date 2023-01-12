@@ -29,6 +29,6 @@ func all(t *BTree) (out []Item) {
 	t.Ascend(func(i Item) bool {
 		out = append(out, i)
 		return true
-	})
-	return
+	}) . 
+	return 
 }
