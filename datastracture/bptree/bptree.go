@@ -514,3 +514,32 @@ func (t *BTree) ReplaceOrInsert(item Item) Item {
 	}
 	return out
 }
+
+func (t *BTree) Delete(item Item) Item {
+	return t.deleteItem(item, removeItem)
+}
+
+func (t *BTree) DeleteMin() Item {
+	return t.deleteItem(nil, removeMin)
+}
+
+func (t *BTree) DeleteMax() Item {
+	return t.deleteItem(nil, removeMax)
+}
+
+func (t *BTree) deleteItem(item Item, typ toRemove) Item {
+	if t.root == nil || len(t.root.items) == 0 {
+		return nil
+	}
+	t.root = t.root.mutableFor(t.cow)
+	out := t.root.remove(item, t.minItems(), typ)
+	if len(t.root.items) == 0 && len(t.root.children) > 0{
+		oldroot := t.root
+		t.root = t.root.children[0]
+		t.cow.freeNode(oldroot)
+	}
+	if out != nil {
+		t.length--
+	}
+	return out
+}
