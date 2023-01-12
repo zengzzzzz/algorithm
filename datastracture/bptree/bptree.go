@@ -572,3 +572,30 @@ func (t *BTree) Ascend(iterator ItemIterator) {
 	t.root.iterate(ascend, nil, nil, false, false, iterator)
 }
 
+func (t *BTree) DescendRange(lessOrEqual, greaterThan Item, iter Iterator) {
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(descend, lessOrEqual, greaterThan, true, false, iter)
+}
+
+func (t *BTree) DescendLessOrEqual(pivot Item, iterator ItemIterator) {
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(descend, pivot, nil, true, false, iterator)
+}
+
+func (t *BTree) DescendGreaterThan(pivot Item, iterator ItemIterator) {
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(descend, nil, pivot, false, false, iterator)
+}
+
+func (t *BTree) Descend(iterator ItemIterator) {
+	if t.root == nil {
+		return
+	}
+	t.root.iterate(descend, nil, nil, false, false, iterator)
+}
