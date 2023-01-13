@@ -29,6 +29,21 @@ func all(t *BTree) (out []Item) {
 	t.Ascend(func(i Item) bool {
 		out = append(out, i)
 		return true
-	}) . 
-	return 
+	})
+	return
+}
+
+func rangrev(n int) (out []Item) {
+	for i := n - 1; i >= 0; i-- {
+		out = append(out, Int(i))
+	}
+	return
+}
+
+func allrev(t *BTree) (out []Item) {
+	t.Descend(func(i Item) bool {
+		out = append(out, i)
+		return true
+	})
+	return
 }
