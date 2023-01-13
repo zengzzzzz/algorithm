@@ -617,6 +617,10 @@ func (t *BTree) Max() Item {
 	return max(t.root)
 }
 
+func (t *BTree) Has(key Item) bool {
+	return t.Get(key) != nil
+}
+
 func (t *BTree) Len() int {
 	return t.length
 }
