@@ -13,3 +13,5 @@ Implementation of data structures by go
 6 radix tree
 
 7 quorum
+
+8 radix tree
