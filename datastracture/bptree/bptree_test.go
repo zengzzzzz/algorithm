@@ -19,6 +19,7 @@ func perm(n int) (out []Item) {
 	for _, v := range rand.Perm(n) {
 		out = append(out, Int(v))
 	}
+	return
 }
 
 func rang(n int) (out []Item) {
@@ -58,10 +59,10 @@ func TestBTree(t *testing.T) {
 	const treeSize = 1000
 	for i := 0; i < 10; i++ {
 		if min := tr.Min(); min != nil {
-			t.Errorf("min: got %v, want nil", min)
+			t.Fatalf("min: got %v, want nil", min)
 		}
 		if max := tr.Max(); max != nil {
-			t.Errorf("max: got %v, want nil", max)
+			t.Fatalf("max: got %v, want nil", max)
 		}
 		for _, item := range perm(treeSize) {
 			if x := tr.ReplaceOrInsert(item); x != nil {
@@ -88,6 +89,19 @@ func TestBTree(t *testing.T) {
 		want := rang(treeSize)
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("all: got %v, want %v", got, want)
+		}
+		gotrev := allrev(tr)
+		wantrev := rangrev(treeSize)
+		if !reflect.DeepEqual(gotrev, wantrev) {
+			t.Fatalf("mismatch: \n got: %v, \nwant: %v", got, want)
+		}
+		for _, item := range perm(treeSize) {
+			if x := tr.Delete(item); x == nil {
+				t.Fatalf("delete didn't find %v", item)
+			}
+		}
+		if got = all(tr); len(got) != 0 {
+			t.Fatalf("all: got %v, want empty", got)
 		}
 	}
 }
