@@ -16,4 +16,6 @@ Implementation of data structures by go
 
 8 radix tree
 
-9 zab / vsr
+9 zab / vsr / paxos
+
+10 perim
