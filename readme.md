@@ -1,6 +1,6 @@
 Implementation of data structures by go
 
-1 skiplist
+1 skiplist / qucik list
 
 2 btree
 
