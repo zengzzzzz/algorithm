@@ -21,3 +21,5 @@ Implementation of data structures by go
 10 perim / kruskal
 
 11 npc
+
+12 lr
