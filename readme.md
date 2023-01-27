@@ -23,3 +23,5 @@ Implementation of data structures by go
 11 npc
 
 12 lru
+
+13 random sampling without replacement
