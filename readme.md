@@ -22,4 +22,4 @@ Implementation of data structures by go
 
 11 npc
 
-12 lr
+12 lru
