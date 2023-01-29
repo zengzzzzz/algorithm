@@ -1,3 +1,9 @@
+/*
+ * @Author: zengzh 
+ * @Date: 2023-01-29 10:10:56 
+ * @Last Modified by:   zengzh 
+ * @Last Modified time: 2023-01-29 10:10:56 
+ */
 package bptree
 
 import (
@@ -104,4 +110,5 @@ func TestBTree(t *testing.T) {
 			t.Fatalf("all: got %v, want empty", got)
 		}
 	}
+	return
 }
