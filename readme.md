@@ -6,6 +6,8 @@ Implementation of data structures by go
 
 3 bptree
 
+3.1 limit count
+
 4 reverse binary iteration （redis scan）
 
 5 raft
