@@ -4,7 +4,40 @@ import (
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"github.com/benbjohnson/clock"
 )
+
+type Limiter interface {
+	Take() time.Time
+}
+
+type Clock interface {
+	Now() time.Time
+	Sleep(time.Duration)
+}
+
+type config struct {
+	clock Clock
+	slack int
+	per   time.Duration
+}
+
+func buildConfig(opts []Option) config {
+	c := config{
+		clock: clock.New(),
+		slack: 10,
+		per:   time.Second,
+	}
+	for _, opt := range opts {
+		opt.apply(&c)
+	}
+	return c
+}
+
+type Option interface {
+	apply(*config)
+}
 
 type state struct {
 	last     time.Time
@@ -20,8 +53,19 @@ type atomicLimiter struct {
 }
 
 func newAtomicBased(rate int, opts ...Option) *atomicLimiter {
-	config := bulidConfig(opts...)
-
+	config := buildConfig(opts)
+	perRequest := config.per / time.Duration(rate)
+	l := &atomicLimiter{
+		perRequest: perRequest,
+		maxSlack:   -1 * time.Duration(config.slack) * perRequest,
+		clock:      config.clock,
+	}
+	initialState := state{
+		last:     time.Time{},
+		sleepFor: 0,
+	}
+	atomic.StorePointer(&l.state, unsafe.Pointer(&initialState))
+	return l
 }
 
 func (t *atomicLimiter) Take() time.Time {

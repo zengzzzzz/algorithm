@@ -46,6 +46,7 @@ func TestTokenBucketLimit(t *testing.T) {
 					successCount++
 				}
 			}
+
 			if successCount != tt.args.rate {
 				t.Errorf("NewTokenBucketLimiter() = %v, want %v", successCount, tt.args.rate)
 				return
