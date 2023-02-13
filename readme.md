@@ -1,4 +1,5 @@
 1. Skip List / Quick List
+
 A skip list is a data structure that is similar to an ordered linked list but with some additional features. It uses a probabilistic approach to achieve an average O(log n) time complexity for search, insert, and delete operations, where n is the number of elements in the list.
 
 A quick list is a specific implementation of a skip list where each node in the list is a linked list of nodes with the same key value. This allows for efficient handling of duplicates and improves the performance of certain operations.
@@ -14,6 +15,7 @@ Not as efficient as balanced trees in the worst case.
 Space overhead due to the additional pointers used in the skip list structure.
 
 2. B-Tree
+
 A B-Tree is a type of balanced tree data structure that is commonly used in databases, file systems, and other applications where fast access to large amounts of ordered data is required.
 
 B-Trees are optimized for operations on blocks of data stored on disk, such as disk drives or flash drives. They work by keeping the keys and data in a node closely packed and maintaining a large number of keys in each node, reducing the number of disk accesses required to find a key.
@@ -29,6 +31,7 @@ More complex than simple linked lists or skip lists.
 Can have a larger space overhead due to the additional information stored in each node.
 
 3. B+ Tree
+
 A B+ Tree is a variant of the B-Tree data structure that is commonly used in databases, file systems, and other applications where fast access to large amounts of ordered data is required.
 
 Like B-Trees, B+ Trees are self-balancing and optimized for operations on blocks of data stored on disk. However, B+ Trees differ from B-Trees in that all data is stored in the leaves of the tree, with the internal nodes only containing keys. This can lead to more efficient storage and retrieval of data in certain situations.
