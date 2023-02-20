@@ -11,3 +11,7 @@ func TestSyncChan(t *testing.T){
 func TestWaitGroup(t *testing.T){
     waitGroup()
 }
+
+func TestSyncMutex(t *testing.T){
+    SyncMutex()
+}

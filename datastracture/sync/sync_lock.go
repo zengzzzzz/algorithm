@@ -1,14 +1,15 @@
 /*
- * @Author: zengzh 
- * @Date: 2023-02-20 14:38:56 
- * @Last Modified by:   zengzh 
- * @Last Modified time: 2023-02-20 14:38:56 
+ * @Author: zengzh
+ * @Date: 2023-02-20 14:38:56
+ * @Last Modified by: zengzh
+ * @Last Modified time: 2023-02-20 16:06:41
  */
 package sync
 
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 func recv(c chan int) {
@@ -35,4 +36,38 @@ func waitGroup() {
 	}
 	wg.Wait()
 	fmt.Println("success")
+}
+
+type Counter struct {
+	mu    sync.Mutex
+	value int
+}
+
+func (c *Counter) Increment() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.value++
+}
+
+func (c *Counter) GetValue() int {
+	// c.mu.Lock()
+	// defer c.mu.Unlock()
+	return c.value
+}
+
+func SyncMutex() {
+	// var wg = sync.WaitGroup{}
+	// counter := &Counter{}
+	counter := 0
+	for i := 0; i < 1000; i++ {
+		// wg.Add(1)
+		go func() {
+			counter++
+			// defer wg.Done()
+			// counter.Increment()
+		}()
+	}
+	time.Sleep(time.Second)
+	// wg.Wait()
+	fmt.Println("Counter value", counter)
 }
