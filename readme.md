@@ -1,71 +1,38 @@
-1. Skip List / Quick List
+# Algorithm Implementations in Golang
 
-A skip list is a data structure that is similar to an ordered linked list but with some additional features. It uses a probabilistic approach to achieve an average O(log n) time complexity for search, insert, and delete operations, where n is the number of elements in the list.
+This repository contains various algorithms implemented in the Go programming language. The algorithms are categorized according to their type, such as btree, ratelimit, skip-list, and dynamic programming.
 
-A quick list is a specific implementation of a skip list where each node in the list is a linked list of nodes with the same key value. This allows for efficient handling of duplicates and improves the performance of certain operations.
+### The list of algorithms implemented in this repository is as follows:
 
-Skip lists were first described by William Pugh in his 1990 paper "Skip Lists: A Probabilistic Alternative to Balanced Trees".
+| no   | name                                | is complete |
+| ---- | ----------------------------------- | ----------- |
+| 1    | skip list                           | [x]         |
+| 2    | b tree                              | [x]         |
+| 3    | bp tree                             | []          |
+| 4    | ratelimit                           | [x]         |
+| 5    | radix tree                          |             |
+| 6    | quorum                              |             |
+| 7    | zab / vs / paxos / raft             |             |
+| 8    | lru                                 |             |
+| 9    | random sampling without replacement |             |
 
-Pros
-Simple and easy to understand.
-Fast average time complexity for search, insert, and delete operations.
-Can handle duplicates efficiently.
-Cons
-Not as efficient as balanced trees in the worst case.
-Space overhead due to the additional pointers used in the skip list structure.
+## Getting Started
 
-2. B-Tree
+### Prerequisites
 
-A B-Tree is a type of balanced tree data structure that is commonly used in databases, file systems, and other applications where fast access to large amounts of ordered data is required.
+To run the programs in this repository, you need to have Go installed on your machine. You can download and install Go from the official website: https://golang.org/dl/
 
-B-Trees are optimized for operations on blocks of data stored on disk, such as disk drives or flash drives. They work by keeping the keys and data in a node closely packed and maintaining a large number of keys in each node, reducing the number of disk accesses required to find a key.
+### Installation
 
-B-Trees are also self-balancing, meaning that they automatically adjust the structure of the tree to maintain balance and ensure that the height of the tree remains logar to the number of keys stored in the tree. This ensures that search, insert, and delete operations have a logarithmic time complexity, even in the worst case.
+To download the code in this repository, you can either download the ZIP file or clone the repository using Git:
 
-Pros
-Self-balancing, ensuring logarithmic time complexity for search, insert, and delete operations in the worst case.
-Optimized for operations on blocks of data stored on disk.
-Efficient storage of large amounts of ordered data.
-Cons
-More complex than simple linked lists or skip lists.
-Can have a larger space overhead due to the additional information stored in each node.
+### Usage
 
-3. B+ Tree
+Do not need to use it, just for learning.
+## Contributing
 
-A B+ Tree is a variant of the B-Tree data structure that is commonly used in databases, file systems, and other applications where fast access to large amounts of ordered data is required.
+Contributions are always welcome. If you have implemented an algorithm in Go that is not already present in this repository, you can create a pull request with your implementation.
 
-Like B-Trees, B+ Trees are self-balancing and optimized for operations on blocks of data stored on disk. However, B+ Trees differ from B-Trees in that all data is stored in the leaves of the tree, with the internal nodes only containing keys. This can lead to more efficient storage and retrieval of data in certain situations.
+## License
 
-B+ Trees also support range queries more efficiently than B-Trees, as all data is stored in the leaves and can be easily retrieved by following a path from the root to the appropriate leaf node.
-
-Pros
-Self-balancing, ensuring logarithmic time complexity for search, insert, and delete operations in the worst case.
-Optimized for operations on blocks of data stored on disk.
-Supports range queries more efficiently than B-Trees.
-Efficient storage and retrieval of data in certain situations.
-Cons
-More complex than simple linked lists or skip lists.
-Can have a larger space overhead due to the additional information stored in each node.
-Note: It's important to choose the appropriate data structure for your specific use case based on the size and type of data you will be working with, as well as the operations you will be performing on that data.
-
-3.1 limit count
-
-4 reverse binary iteration （redis scan）
-
-5 raft
-
-6 radix tree
-
-7 quorum
-
-8 radix tree
-
-9 zab / vsr / paxos
-
-10 perim / kruskal
-
-11 npc
-
-12 lru
-
-13 random sampling without replacement
+This repository is licensed under the MIT License. See the [LICENSE](https://chat.openai.com/LICENSE) file for more information.
