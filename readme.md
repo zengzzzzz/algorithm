@@ -1,15 +1,15 @@
 # Algorithm Implementations in Golang
 
-This repository contains various algorithms implemented in the Go programming language. The algorithms are categorized according to their type, such as btree, ratelimit, skip-list, and dynamic programming.
+This repository contains various algorithms implemented in the Go programming language. The algorithms are categorized according to their type, such as btree, ratelimit, skip-list and dynamic programming.
 
 ### The list of algorithms implemented in this repository is as follows:
 
 | no   | name                                | is complete |
 | ---- | ----------------------------------- | ----------- |
-| 1    | skip list                           | [x]         |
-| 2    | b tree                              | [x]         |
-| 3    | bp tree                             | []          |
-| 4    | ratelimit                           | [x]         |
+| 1    | skip list                           | :heavy_check_mark:        |
+| 2    | b tree                              | :heavy_check_mark:        |
+| 3    | bp tree                             | ing          |
+| 4    | ratelimit                           | :heavy_check_mark:        |
 | 5    | radix tree                          |             |
 | 6    | quorum                              |             |
 | 7    | zab / vs / paxos / raft             |             |
