@@ -2,8 +2,10 @@
  * @Author: zengzh
  * @Date: 2023-04-03 16:02:28
  * @Last Modified by: zengzh
- * @Last Modified time: 2023-04-03 16:48:17
+ * @Last Modified time: 2023-04-03 16:50:49
  */
+
+// https://www.duguying.net/article/set-cpu-affinity-binding-for-golang-program
 package main
 
 import (
