@@ -6,16 +6,19 @@
  */
 
 // https://www.duguying.net/article/set-cpu-affinity-binding-for-golang-program
-package main
+package cpu_cache
 
 import (
 	"fmt"
+	"golang.org/x/sys/unix"
 	"runtime"
 	"sync"
 	"time"
 )
 
-const EXEC_COUNT = 100 * 1000 * 1000
+const (
+	execCount = 100 * 1000 * 1000
+)
 
 type Bits struct {
 	a           int
@@ -23,75 +26,67 @@ type Bits struct {
 	b           int
 }
 
-var bits Bits
+func whichCPU(prefix string) {
+	curCPU := make([]int, runtime.NumCPU())
+	runtime.GOMAXPROCS(len(curCPU))
 
-func whichCPU(prefix string) int {
-	curCPU := runtime.NumCPU()
-	p := make([]int, curCPU)
-	for i := 0; i < curCPU; i++ {
-		if err := runtime.GOMAXPROCS(i + 1); err < 1{
-			fmt.Println("warning: could not set CPU affinity, continuing...")
-			return -1
-		}
-		p[i] = i
+	for i := range curCPU {
+		curCPU[i] = i
 	}
-	runtime.GOMAXPROCS(curCPU)
-	fmt.Printf("[%s] this process %d is running processor : %d\n", prefix, os.Getpid(), p)
-
-	return 0
+	fmt.Printf("[%s] this process %d is running processor(s) : %v\n", prefix, os.Getpid(), curCPU)
 }
 
-func setCPU(cpuID int) int {
-	if err := runtime.GOMAXPROCS(cpuID + 1); err < 1 {
-		fmt.Println("warning: could not set CPU affinity, continuing...")
-		return -1
+func setCPU(cpuID int) error {
+	var newMask unix.CPUSet
+	newMask.Set(cpuID)
+	if err := unix.SchedSetaffinity(0, &newMask); err != nil {
+		fmt.Printf("set cpu affinity failed, err:%v, cpuID:%d \r ", err, cpuID)
 	}
-
-	return 0
 }
 
-func thdFunc1(wg *sync.WaitGroup) {
+func thdFunc1(wg *sync.WaitGroup, bits *Bits) {
 	defer wg.Done()
 	setCPU(0)
 	whichCPU("thread 1 start")
-	beginTV := time.Now()
+	begin := time.Now()
 
-	for i := 0; i < EXEC_COUNT; i++ {
+	for i := 0; i < execCount; i++ {
 		bits.a += 1
 		a := bits.a
+		_ = a
 	}
 
-	endTV := time.Now()
-	fmt.Printf("thd1 perf:[%v]us\n", endTV.Sub(beginTV).Microseconds())
+	end := time.Now()
+	fmt.Printf("thd1 perf:[%d]us\n", end.Sub(begin)/time.Microsecond)
 	whichCPU("thread 1 end")
 }
 
-func thdFunc2(wg *sync.WaitGroup) {
+func thdFunc2(wg *sync.WaitGroup, bits *Bits) {
 	defer wg.Done()
 	setCPU(1)
 	whichCPU("thread 2 start")
-	beginTV := time.Now()
+	begin := time.Now()
 
-	for i := 0; i < EXEC_COUNT; i++ {
+	for i := 0; i < execCount; i++ {
 		bits.b += 2
 		b := bits.b
+		_ = b
 	}
 
-	endTV := time.Now()
-	fmt.Printf("thd2 perf:[%v]us\n", endTV.Sub(beginTV).Microseconds())
+	end := time.Now()
+	fmt.Printf("thd2 perf:[%d]us\n", end.Sub(begin)/time.Microsecond)
 	whichCPU("thread 2 end")
 }
 
 func main() {
-	curCPU := runtime.NumCPU()
-	fmt.Printf("system has %d processor(s).\n", curCPU)
-	bits = Bits{}
-	setCPU(0)
+	fmt.Printf("system has %d processor(s).\n", runtime.NumCPU())
+	bits := Bits{}
 	whichCPU("main thread")
 
 	var wg sync.WaitGroup
 	wg.Add(2)
-	go thdFunc1(&wg)
-	go thdFunc2(&wg)
+	go thdFunc1(&wg, &bits)
+	go thdFunc2(&wg, &bits)
+
 	wg.Wait()
 }

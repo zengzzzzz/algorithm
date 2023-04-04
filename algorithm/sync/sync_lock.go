@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"sync/atomic"
 )
 
 func recv(c chan int) {
@@ -70,4 +71,25 @@ func SyncMutex() {
 	time.Sleep(time.Second)
 	// wg.Wait()
 	fmt.Println("Counter value", counter)
+}
+
+var x int64
+var wg sync.WaitGroup
+var l sync.Mutex
+
+func Add(){
+	x++ 
+	wg.Done()
+}
+
+func mutexAdd(){
+	l.Lock()
+	x++
+	l.Unlock()
+	wg.Done()
+}
+
+func atomicAdd(){
+	atomic.AddInt64(&x,1)
+	wg.Done()
 }
