@@ -1,10 +1,45 @@
-package cpucache
+package cpu_cache
 
 import (
-    "testing"
+	"sync"
+	"testing"
 )
 
+func BenchmarkTestRunOnTwoCoreWithoutCache(b *testing.B) {
+	SetCPUCore(2)
+	bits := Bits{}
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go thdFunc1(&wg, &bits)
+	go thdFunc3(&wg, &bits)
+	wg.Wait()
+}
 
-func TestSchedSetaffinity(t *testing.T) {
-    whichCPU("main")
+func BenchmarkTestRunOnTwoCoreWithCache(b *testing.B) {
+	SetCPUCore(2)
+	bits := BitsWithCache{}
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go thdFunc2(&wg, &bits)
+	go thdFunc4(&wg, &bits)
+	wg.Wait()
+}
+
+func BenchmarkTestRunOnOneCoreWithoutCache(b *testing.B) {
+	SetCPUCore(1)
+	bits := Bits{}
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go thdFunc1(&wg, &bits)
+	go thdFunc3(&wg, &bits)
+	wg.Wait()
+}
+func BenchmarkTestRunOnOneCoreWithCache(b *testing.B) {
+	SetCPUCore(1)
+	bits := BitsWithCache{}
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go thdFunc2(&wg, &bits)
+	go thdFunc4(&wg, &bits)
+	wg.Wait()
 }
