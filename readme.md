@@ -15,6 +15,7 @@ This repository contains various algorithms implemented in the Go programming la
 | 7    | zab / vs / paxos / raft             |             |
 | 8    | lru                                 |             |
 | 9    | random sampling without replacement |             |
+| 10   | cpu cache line test | :heavy_check_mark:            |
 
 ## Getting Started
 

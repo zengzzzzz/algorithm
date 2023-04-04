@@ -7,8 +7,8 @@
 package main
 
 import (
+	"algorithm/cpu_cache"
 	"fmt"
-	"algorithm/limter"
 )
 
 type Item interface {
@@ -22,7 +22,7 @@ func (a Int) Less(than Item) bool {
 }
 
 func main() {
-	limter.Limit()
+	cpu_cache.GetCPU("main")
 	c := Int(1)
 	fmt.Print(c.Less(Int(3)))
 }

@@ -6,7 +6,7 @@
  */
 
 //  https://studygolang.com/articles/22491
-package skiplist
+package skip_list
 
 import (
 	"math"

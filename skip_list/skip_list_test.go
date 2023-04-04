@@ -4,7 +4,7 @@
  * @Last Modified by: zengzh
  * @Last Modified time: 2022-12-30 07:53:55
  */
-package skiplist
+package skip_list
 
 import (
 	"testing"
