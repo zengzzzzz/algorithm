@@ -8,6 +8,7 @@ package main
 
 import (
 	"fmt"
+	"algorithm/limter"
 )
 
 type Item interface {
@@ -21,6 +22,7 @@ func (a Int) Less(than Item) bool {
 }
 
 func main() {
+	limter.Limit()
 	c := Int(1)
 	fmt.Print(c.Less(Int(3)))
 }
