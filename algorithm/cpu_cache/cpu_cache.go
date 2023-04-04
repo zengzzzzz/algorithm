@@ -6,11 +6,11 @@
  */
 
 // https://www.duguying.net/article/set-cpu-affinity-binding-for-golang-program
-package cpu_cache
+package cpucache
 
 import (
 	"fmt"
-	"golang.org/x/sys/unix"
+	"os"
 	"runtime"
 	"sync"
 	"time"
@@ -36,12 +36,12 @@ func whichCPU(prefix string) {
 	fmt.Printf("[%s] this process %d is running processor(s) : %v\n", prefix, os.Getpid(), curCPU)
 }
 
-func setCPU(cpuID int) error {
-	var newMask unix.CPUSet
-	newMask.Set(cpuID)
-	if err := unix.SchedSetaffinity(0, &newMask); err != nil {
-		fmt.Printf("set cpu affinity failed, err:%v, cpuID:%d \r ", err, cpuID)
-	}
+func setCPU(cpuID int) {
+	// var newMask unix.CPUSet
+	// newMask.Set(cpuID)
+	// if err := unix.SchedSetaffinity(0, &newMask); err != nil {
+	// 	fmt.Printf("set cpu affinity failed, err:%v, cpuID:%d \r ", err, cpuID)
+	// }
 }
 
 func thdFunc1(wg *sync.WaitGroup, bits *Bits) {
@@ -78,15 +78,15 @@ func thdFunc2(wg *sync.WaitGroup, bits *Bits) {
 	whichCPU("thread 2 end")
 }
 
-func main() {
-	fmt.Printf("system has %d processor(s).\n", runtime.NumCPU())
-	bits := Bits{}
-	whichCPU("main thread")
+// func main() {
+// 	fmt.Printf("system has %d processor(s).\n", runtime.NumCPU())
+// 	bits := Bits{}
+// 	whichCPU("main thread")
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-	go thdFunc1(&wg, &bits)
-	go thdFunc2(&wg, &bits)
+// 	var wg sync.WaitGroup
+// 	wg.Add(2)
+// 	go thdFunc1(&wg, &bits)
+// 	go thdFunc2(&wg, &bits)
 
-	wg.Wait()
-}
+// 	wg.Wait()
+// }
