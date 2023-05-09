@@ -10,6 +10,7 @@ package cpu_cache
 
 import (
 	// "fmt"
+	"reflect"
 	"runtime"
 	"sync"
 	// "time"
@@ -20,27 +21,28 @@ const (
 )
 
 type Bits struct {
-	a int
-	b int
+	A int
+	B int
 }
 
 type BitsWithCache struct {
-	a int
+	A           int
 	placeholder [64]byte
-	b int
+	B           int
 }
 
 func SetCPUCore(num int) {
 	runtime.GOMAXPROCS(num)
 }
 
-func thdFunc1(wg *sync.WaitGroup, bits *Bits) {
+func thdFunc1(wg *sync.WaitGroup, bits interface{}) {
 	defer wg.Done()
 	// begin := time.Now()
 
+	v := reflect.ValueOf(bits).Elem().FieldByName("A")
 	for i := 0; i < execCount; i++ {
-		bits.a += 1
-		a := bits.a
+		v.SetInt(v.Int() + 1)
+		a := v.Int()
 		_ = a
 	}
 
@@ -48,44 +50,18 @@ func thdFunc1(wg *sync.WaitGroup, bits *Bits) {
 	// fmt.Printf("thd1 perf:[%d]us\n", end.Sub(begin)/time.Microsecond)
 }
 
-func thdFunc2(wg *sync.WaitGroup, bits *BitsWithCache) {
+
+func thdFunc2(wg *sync.WaitGroup, bits interface{}) {
 	defer wg.Done()
 	// begin := time.Now()
 
+	v := reflect.ValueOf(bits).Elem().FieldByName("B")
 	for i := 0; i < execCount; i++ {
-		bits.a += 1
-		a := bits.a
-		_ = a
-	}
-
-	// end := time.Now()
-	// fmt.Printf("thd1 perf:[%d]us\n", end.Sub(begin)/time.Microsecond)
-}
-
-func thdFunc3(wg *sync.WaitGroup, bits *Bits) {
-	defer wg.Done()
-	// begin := time.Now()
-
-	for i := 0; i < execCount; i++ {
-		bits.b += 2
-		b := bits.b
+		v.SetInt(v.Int() + 2)
+		b := v.Int()
 		_ = b
 	}
-
 	// end := time.Now()
 	// fmt.Printf("thd2 perf:[%d]us\n", end.Sub(begin)/time.Microsecond)
 }
 
-func thdFunc4(wg *sync.WaitGroup, bits *BitsWithCache) {
-	defer wg.Done()
-	// begin := time.Now()
-
-	for i := 0; i < execCount; i++ {
-		bits.b += 2
-		b := bits.b
-		_ = b
-	}
-
-	// end := time.Now()
-	// fmt.Printf("thd2 perf:[%d]us\n", end.Sub(begin)/time.Microsecond)
-}

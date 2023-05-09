@@ -11,7 +11,7 @@ func BenchmarkTestRunOnTwoCoreWithoutCache(b *testing.B) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go thdFunc1(&wg, &bits)
-	go thdFunc3(&wg, &bits)
+	go thdFunc2(&wg, &bits)
 	wg.Wait()
 }
 
@@ -20,8 +20,8 @@ func BenchmarkTestRunOnTwoCoreWithCache(b *testing.B) {
 	bits := BitsWithCache{}
 	var wg sync.WaitGroup
 	wg.Add(2)
+	go thdFunc1(&wg, &bits)
 	go thdFunc2(&wg, &bits)
-	go thdFunc4(&wg, &bits)
 	wg.Wait()
 }
 
@@ -31,7 +31,7 @@ func BenchmarkTestRunOnOneCoreWithoutCache(b *testing.B) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go thdFunc1(&wg, &bits)
-	go thdFunc3(&wg, &bits)
+	go thdFunc2(&wg, &bits)
 	wg.Wait()
 }
 func BenchmarkTestRunOnOneCoreWithCache(b *testing.B) {
@@ -39,7 +39,7 @@ func BenchmarkTestRunOnOneCoreWithCache(b *testing.B) {
 	bits := BitsWithCache{}
 	var wg sync.WaitGroup
 	wg.Add(2)
+	go thdFunc1(&wg, &bits)
 	go thdFunc2(&wg, &bits)
-	go thdFunc4(&wg, &bits)
 	wg.Wait()
 }

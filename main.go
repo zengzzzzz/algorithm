@@ -7,7 +7,6 @@
 package main
 
 import (
-	"algorithm/cpu_cache"
 	"fmt"
 )
 
@@ -22,7 +21,6 @@ func (a Int) Less(than Item) bool {
 }
 
 func main() {
-	cpu_cache.GetCPU("main")
 	c := Int(1)
 	fmt.Print(c.Less(Int(3)))
 }
