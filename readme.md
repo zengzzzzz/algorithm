@@ -10,7 +10,7 @@ This repository contains various algorithms implemented in the Go programming la
 | 2    | b tree                              | :heavy_check_mark:        |
 | 3    | bp tree                             | ing          |
 | 4    | ratelimit                           | :heavy_check_mark:        |
-| 5    | radix tree                          |             |
+| 5    | radix tree                          | ing            |
 | 6    | quorum nwr                          | :heavy_check_mark:        |
 | 7    | zab / vs / paxos / raft             |             |
 | 8    | lru                                 |             |
