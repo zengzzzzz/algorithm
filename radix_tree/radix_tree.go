@@ -175,5 +175,22 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
             node:  n,
 		})
         n.prefix = n.prefix[commonPrefix:]
+		leaf:=&leafNode{
+			key: s,
+			val: v,
+		}
+		search = search[commonPrefix:]
+		if len(search) == 0 {
+			child.leaf = leaf
+			return nil, false
+		}
+		child.addEdge(edge{
+			label: search[0],
+			node: &node{
+				leaf:   leaf,
+				prefix: search,
+			},
+		})
+		return nil, false
 	}
 }
