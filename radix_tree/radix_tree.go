@@ -245,13 +245,13 @@ func (t *Tree) DeletePrefix(s string) int {
 }
 
 func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
-	if len(prefix) == 0{
+	if len(prefix) == 0 {
 		subTreeSize := 0
 		recursiveWalk(n, func(s string, v interface{}) bool {
 			subTreeSize++
 			return false
 		})
-		if n.isLeaf(){
+		if n.isLeaf() {
 			n.leaf = nil
 		}
 		n.edges = nil
@@ -280,4 +280,27 @@ func (n *node) mergeChild() {
 	n.prefix += child.prefix
 	n.leaf = child.leaf
 	n.edges = child.edges
+}
+
+func (t *Tree) Get(s string) (interface{}, bool) {
+	n := t.root
+	search := s
+	for {
+		if len(search) == 0 {
+			if n.isLeaf() {
+				return n.leaf.val, true
+			}
+			break
+		}
+		n = n.getEdge(search[0])
+		if n == nil {
+			break
+		}
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+		} else {
+			break
+		}
+	}
+	return nil, false
 }
