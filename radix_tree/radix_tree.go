@@ -304,3 +304,31 @@ func (t *Tree) Get(s string) (interface{}, bool) {
 	}
 	return nil, false
 }
+
+// not leaf node how to match
+func (t *Tree) longestPrefix(s string) (string, interface{}, bool) {
+	var last *leafNode
+	n := t.root
+	search := s
+	for {
+		if n.isLeaf() {
+			last = n.leaf
+		}
+		if len(search) == 0 {
+			break
+		}
+		n = n.getEdge(search[0])
+		if n == nil {
+			break
+		}
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+		} else {
+			break
+		}
+	}
+	if last != nil {
+		return last.key, last.val, true
+	}
+	return "", nil, false
+}
