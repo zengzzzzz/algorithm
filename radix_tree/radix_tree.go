@@ -172,10 +172,10 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 		parent.updateEdge(search[0], child)
 		child.addEdge(edge{
 			label: n.prefix[commonPrefix],
-            node:  n,
+			node:  n,
 		})
-        n.prefix = n.prefix[commonPrefix:]
-		leaf:=&leafNode{
+		n.prefix = n.prefix[commonPrefix:]
+		leaf := &leafNode{
 			key: s,
 			val: v,
 		}
@@ -193,4 +193,83 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 		})
 		return nil, false
 	}
+}
+
+func (t *Tree) Delete(s string) (interface{}, bool) {
+	var parent *node
+	var label byte
+	n := t.root
+	search := s
+	for {
+		if len(search) == 0 {
+			if !n.isLeaf() {
+				break
+			}
+			goto DELETE
+		}
+		parent = n
+		label = search[0]
+		n = n.getEdge(label)
+		if n == nil {
+			break
+		}
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+		} else {
+			break
+		}
+	}
+	return nil, false
+
+DELETE:
+	leaf := n.leaf
+	n.leaf = nil
+	t.size--
+
+	if parent != nil && len(n.edges) == 0 {
+		parent.delEdge(label)
+	}
+
+	if n != t.root && len(n.edges) == 1 {
+		n.mergeChild()
+	}
+
+	if parent != nil && parent != t.root && len(parent.edges) == 1 && !parent.isLeaf() {
+		parent.mergeChild()
+	}
+	return leaf.val, true
+}
+
+func (t *Tree) DeletePrefix(s string) int {
+	return t.deletePrefix(nil, t.root, s)
+}
+
+func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
+	if len(prefix) == 0{
+		subTreeSize := 0
+		recursiveWalk(n, func(s string, v interface{}) bool {
+			subTreeSize++
+			return false
+		})
+		if n.isLeaf(){
+			n.leaf = nil
+		}
+		n.edges = nil
+		if parent != nil && parent != t.root && len(parent.edges) == 1 && !parent.isLeaf() {
+			parent.mergeChild()
+		}
+		t.size -= subTreeSize
+		return subTreeSize
+	}
+	label := prefix[0]
+	child := n.getEdge(label)
+	if child == nil || (!strings.HasPrefix(child.prefix, prefix) && !strings.HasPrefix(prefix, child.prefix)) {
+		return 0
+	}
+	if len(child.prefix) > len(prefix) {
+		prefix = prefix[len(prefix):]
+	} else {
+		prefix = prefix[len(child.prefix):]
+	}
+	return t.deletePrefix(n, child, prefix)
 }
