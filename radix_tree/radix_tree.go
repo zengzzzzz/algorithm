@@ -273,3 +273,11 @@ func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
 	}
 	return t.deletePrefix(n, child, prefix)
 }
+
+func (n *node) mergeChild() {
+	e := n.edges[0]
+	child := e.node
+	n.prefix += child.prefix
+	n.leaf = child.leaf
+	n.edges = child.edges
+}
