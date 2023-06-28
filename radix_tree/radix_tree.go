@@ -350,7 +350,7 @@ func (t *Tree) Minimum() (string, interface{}, bool) {
 func (t *Tree) Maximum() (string, interface{}, bool) {
 	n := root
 	for {
-		if num := len(n,edges); num > 0 {
+		if num := len(n, edges); num > 0 {
 			n = n.edges[num-1].node
 			continue
 		}
@@ -360,4 +360,74 @@ func (t *Tree) Maximum() (string, interface{}, bool) {
 		break
 	}
 	return "", nil, false
+}
+
+func (t *Tree) Walk(fn WalkFn) {
+	recursiveWalk(t.root, fn)
+}
+
+func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
+	n := t.root
+	search := prefix
+	for {
+		if len(search) == 0 {
+			recursiveWalk(n, fn)
+			return
+		}
+		n = n.getEdge(serch[0])
+		if n == nil {
+			return
+		}
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+			continue
+		}
+		if strings.HasPrefix(n.prefix, search) {
+			recursiveWalk(n, fn)
+		}
+		return
+	}
+}
+
+func (t *Tree) WalkPath(path string, fn WalkFn) {
+	n := t.root
+	search := path
+	for {
+		if n.leaf != nil && fn(n.leaf.key, n.leaf.val) {
+			return
+		}
+		if len(search) == 0 {
+			return
+		}
+		n = n.getEdge(search[0])
+		if n == nil {
+			return
+		}
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+		} else {
+			break
+		}
+	}
+}
+func recursiveWalk(n *node, fn WalkFn) bool {
+	if n.leaf != nil && fn(n.leaf.key, n.leaf.val) {
+		return true
+	}
+	i := 0
+	k := len(n.edges)
+	for i < k {
+		e := n.edges[i]
+		if recursiveWalk(e.node, fn) {
+			return true
+		}
+		if len(n.edges) == 0 {
+			return recursiveWalk(n, fn)
+		}
+		if len(n.edges) >= k {
+			i++
+		}
+		k = len(n.edges)
+	}
+	return false
 }
