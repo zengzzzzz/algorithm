@@ -332,3 +332,32 @@ func (t *Tree) longestPrefix(s string) (string, interface{}, bool) {
 	}
 	return "", nil, false
 }
+
+func (t *Tree) Minimum() (string, interface{}, bool) {
+	n := t.root
+	for {
+		if n.isLeaf() {
+			return n.leaf.key, n.leaf.val, true
+		}
+		if len(n.edges) == 0 {
+			break
+		}
+		n = n.edges[0].node
+	}
+	return "", nil, false
+}
+
+func (t *Tree) Maximum() (string, interface{}, bool) {
+	n := root
+	for {
+		if num := len(n,edges); num > 0 {
+			n = n.edges[num-1].node
+			continue
+		}
+		if n.isLeaf() {
+			return n.leaf.key, n.leaf.val, true
+		}
+		break
+	}
+	return "", nil, false
+}
