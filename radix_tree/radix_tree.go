@@ -2,7 +2,7 @@
  * @Author: zengzh
  * @Date: 2023-06-26 09:14:55
  * @Last Modified by: zengzh
- * @Last Modified time: 2023-06-26 09:52:19
+ * @Last Modified time: 2023-06-28 09:23:19
  */
 package radix_tree
 
@@ -430,4 +430,13 @@ func recursiveWalk(n *node, fn WalkFn) bool {
 		k = len(n.edges)
 	}
 	return false
+}
+
+func (t *Tree) ToMap() map[string]interface{} {
+	out := make(map[string]interface{}, t.size)
+	t.Walk(func(k string, v interface{}) bool {
+		out[k] = v
+		return false
+	})
+	return out
 }
