@@ -306,7 +306,7 @@ func (t *Tree) Get(s string) (interface{}, bool) {
 }
 
 // not leaf node how to match
-func (t *Tree) longestPrefix(s string) (string, interface{}, bool) {
+func (t *Tree) LongestPrefix(s string) (string, interface{}, bool) {
 	var last *leafNode
 	n := t.root
 	search := s
