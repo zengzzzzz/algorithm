@@ -348,9 +348,9 @@ func (t *Tree) Minimum() (string, interface{}, bool) {
 }
 
 func (t *Tree) Maximum() (string, interface{}, bool) {
-	n := root
+	n := t.root
 	for {
-		if num := len(n, edges); num > 0 {
+		if num := len(n.edges); num > 0 {
 			n = n.edges[num-1].node
 			continue
 		}
@@ -374,7 +374,7 @@ func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
 			recursiveWalk(n, fn)
 			return
 		}
-		n = n.getEdge(serch[0])
+		n = n.getEdge(search[0])
 		if n == nil {
 			return
 		}
