@@ -278,13 +278,21 @@ DELETE:
 	return leaf.val, true
 }
 
+// DeletePrefix is used to delete the subtree under a prefix
+// returns how many nodes were deleted
+// use this to delete large subtrees efficiently
 func (t *Tree) DeletePrefix(s string) int {
 	return t.deletePrefix(nil, t.root, s)
 }
 
+
+// delete does a recursive deletion
 func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
+	// check for key exhaustion
 	if len(prefix) == 0 {
+		// remove the leaf node
 		subTreeSize := 0
+		// recursively walk from all edges of the node to be deleted
 		recursiveWalk(n, func(s string, v interface{}) bool {
 			subTreeSize++
 			return false
@@ -292,18 +300,22 @@ func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
 		if n.isLeaf() {
 			n.leaf = nil
 		}
+		// delete the entire subtree
 		n.edges = nil
+		// check if we should merge the parent's other child
 		if parent != nil && parent != t.root && len(parent.edges) == 1 && !parent.isLeaf() {
 			parent.mergeChild()
 		}
 		t.size -= subTreeSize
 		return subTreeSize
 	}
+	// look for an edge
 	label := prefix[0]
 	child := n.getEdge(label)
 	if child == nil || (!strings.HasPrefix(child.prefix, prefix) && !strings.HasPrefix(prefix, child.prefix)) {
 		return 0
 	}
+	// consume the search prefix
 	if len(child.prefix) > len(prefix) {
 		prefix = prefix[len(prefix):]
 	} else {
@@ -344,7 +356,7 @@ func (t *Tree) Get(s string) (interface{}, bool) {
 	return nil, false
 }
 
-// not leaf node how to match
+// LongesetPrefix is used to find the longest prefix of a key
 func (t *Tree) LongestPrefix(s string) (string, interface{}, bool) {
 	var last *leafNode
 	n := t.root
@@ -405,6 +417,7 @@ func (t *Tree) Walk(fn WalkFn) {
 	recursiveWalk(t.root, fn)
 }
 
+// walkprefix is used to walk the tree under a prefix
 func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
 	n := t.root
 	search := prefix
@@ -428,6 +441,8 @@ func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
 	}
 }
 
+// walkpath is used to walk the tree under a path, but only visiting nodes
+// from the root down to a given leaf
 func (t *Tree) WalkPath(path string, fn WalkFn) {
 	n := t.root
 	search := path
@@ -449,20 +464,30 @@ func (t *Tree) WalkPath(path string, fn WalkFn) {
 		}
 	}
 }
+
+// recursiveWalk is used to walk the tree recursively.
+// returns true if the walk should be aborted.
 func recursiveWalk(n *node, fn WalkFn) bool {
 	if n.leaf != nil && fn(n.leaf.key, n.leaf.val) {
 		return true
 	}
+	// Recurse on the children
 	i := 0
+	// keeps track of number of edges in previous iteration
 	k := len(n.edges)
 	for i < k {
 		e := n.edges[i]
 		if recursiveWalk(e.node, fn) {
 			return true
 		}
+		// when we are iterating on the node, the node is possibility modified.
+		// If there are no more edges, mergeChild happened, so the last edge 
+		// became the current node n, on which we'll iterate one last time
 		if len(n.edges) == 0 {
 			return recursiveWalk(n, fn)
 		}
+		// if n.edges < k , it means that mergeChild happened, so we need to
+		// iterate on the current node n
 		if len(n.edges) >= k {
 			i++
 		}
