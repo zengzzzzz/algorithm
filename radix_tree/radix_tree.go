@@ -11,22 +11,33 @@ import (
 	"strings"
 )
 
+// WalkFn is the type of the function used visiting each item visited by Walk.
+// Takes a key and value and returns a boolean if iteration should be terminated.
 type WalkFn func(key string, value interface{}) bool
 
+// leafNode is a leaf node in the tree
 type leafNode struct {
 	key string
 	val interface{}
 }
 
+// edge is used to respresent a edge leading to a child node
 type edge struct {
+	// label is the first byte of the edge
 	label byte
 	node  *node
 }
 
+// node is a node in the tree
 type node struct {
-	leaf   *leafNode
+	// leaf is used to store possible leaf
+	leaf *leafNode
+	// prefix is the common prefix we ignore for edges
 	prefix string
-	edges  edges
+	// Edges should be stored in-order for iteration
+	// to avoid a fully materialized slice to save memory,
+	// since in most cases we expect to be sparse.
+	edges edges
 }
 
 func (n *node) isLeaf() bool {
@@ -96,6 +107,9 @@ func (e edges) Sort() {
 	sort.Sort(e)
 }
 
+// Tree is a radix tree. This can be treated as a map[string]interface{}.
+// The main advantage of this over a map is prefix-based lookups and oredered
+// iteration.
 type Tree struct {
 	root *node
 	size int
@@ -117,6 +131,7 @@ func (t *Tree) Len() int {
 	return t.size
 }
 
+// longestPrefix returns the length of the longest prefix shared by k1 and k2.
 func longestPrefix(k1, k2 string) int {
 	max := len(k1)
 	if l := len(k2); l < max {
@@ -131,11 +146,14 @@ func longestPrefix(k1, k2 string) int {
 	return i
 }
 
+// Insert is used to insert or update a value in the tree. returns true if an
+// existing value was updated.
 func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 	var parent *node
 	n := t.root
 	search := s
 	for {
+		// handle key exhaustion
 		if len(search) == 0 {
 			if n.isLeaf() {
 				old := n.leaf.val
@@ -146,8 +164,11 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 			t.size++
 			return nil, false
 		}
+		// look for the edge
 		parent = n
 		n = n.getEdge(search[0])
+
+		// no edge found, create one
 		if n == nil {
 			e := edge{
 				label: search[0],
@@ -160,30 +181,40 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 			t.size++
 			return nil, false
 		}
+		// determine longest prefix of the search key on match
 		commonPrefix := longestPrefix(search, n.prefix)
 		if commonPrefix == len(n.prefix) {
 			search = search[commonPrefix:]
 			continue
 		}
+		// split the node
 		t.size++
 		child := &node{
 			prefix: search[:commonPrefix],
 		}
 		parent.updateEdge(search[0], child)
+
+		// restore the existing node
 		child.addEdge(edge{
 			label: n.prefix[commonPrefix],
 			node:  n,
 		})
 		n.prefix = n.prefix[commonPrefix:]
+
+		// create a new leaf node
 		leaf := &leafNode{
 			key: s,
 			val: v,
 		}
+
+		// if the new key is a subset, add this to node
 		search = search[commonPrefix:]
 		if len(search) == 0 {
 			child.leaf = leaf
 			return nil, false
 		}
+
+		// create a new edge for the node
 		child.addEdge(edge{
 			label: search[0],
 			node: &node{
@@ -195,24 +226,28 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 	}
 }
 
+// Delete is used to delete a key, returning the previous value and if it was deleted.
 func (t *Tree) Delete(s string) (interface{}, bool) {
 	var parent *node
 	var label byte
 	n := t.root
 	search := s
 	for {
+		// check for key exhaustion
 		if len(search) == 0 {
 			if !n.isLeaf() {
 				break
 			}
 			goto DELETE
 		}
+		// look for an edge
 		parent = n
 		label = search[0]
 		n = n.getEdge(label)
 		if n == nil {
 			break
 		}
+		// consume the search prefix
 		if strings.HasPrefix(search, n.prefix) {
 			search = search[len(n.prefix):]
 		} else {
@@ -222,18 +257,21 @@ func (t *Tree) Delete(s string) (interface{}, bool) {
 	return nil, false
 
 DELETE:
+    // delete the leaf node
 	leaf := n.leaf
 	n.leaf = nil
 	t.size--
 
+	// check if we should delete this node from the parent
 	if parent != nil && len(n.edges) == 0 {
 		parent.delEdge(label)
 	}
 
+	// check if we should merge this node
 	if n != t.root && len(n.edges) == 1 {
 		n.mergeChild()
 	}
-
+	// check if we should merge the parent`s other child
 	if parent != nil && parent != t.root && len(parent.edges) == 1 && !parent.isLeaf() {
 		parent.mergeChild()
 	}
@@ -274,6 +312,7 @@ func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
 	return t.deletePrefix(n, child, prefix)
 }
 
+// merge child node to current node
 func (n *node) mergeChild() {
 	e := n.edges[0]
 	child := e.node
