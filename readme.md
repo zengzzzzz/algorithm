@@ -13,7 +13,7 @@ This repository contains various algorithms implemented in the Go programming la
 | 5    | radix tree                          | :heavy_check_mark:        |
 | 6    | quorum nwr                          | :heavy_check_mark:        |
 | 7    | zab / vs / paxos / raft             |             |
-| 8    | lru / lfu                           | ing            |
+| 8    | lru / lfu / fifo                           | ing            |
 | 9    | random sampling without replacement |             |
 | 10   | cpu cache line test | :heavy_check_mark:            |
 
